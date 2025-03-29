@@ -4,12 +4,9 @@
 
 #ifndef PYBIND_EXAMPLE_GMP_UTILS_H
 #define PYBIND_EXAMPLE_GMP_UTILS_H
-#pragma once
 #include <string>
-
-
-std::string gmp_multiply(const std::string& a, const std::string& b, const std::string& module);
-std::string gmp_add(const std::string& a, const std::string& b, const std::string& module);
-std::string gmp_module(const std::string& a, const std::string& module);
-std::string gmp_binary(const std::string& number);
+mpz_class gmp_multiply(const mpz_class &a, const mpz_class &b, const mpz_class &module);
+mpz_class gmp_add(const mpz_class &a, const mpz_class &b, const mpz_class &module);
+mpz_class gmp_module(const mpz_class &a, const mpz_class &module);
+std::string gmp_binary(const mpz_class & number);
 #endif //PYBIND_EXAMPLE_GMP_UTILS_H
