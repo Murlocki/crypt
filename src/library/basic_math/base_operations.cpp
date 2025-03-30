@@ -116,3 +116,43 @@ std::string inverse_element(const std::string &number, const std::string &module
     if(module_int<0) throw std::invalid_argument("Module must be positive");
     return inverse_element(number_int,module_int).get_str();
 }
+
+// Solve linear congruence
+std::vector<mpz_class> solve_linear_congruence(const mpz_class &a, const mpz_class &b, const mpz_class &module){
+    if(module<0) throw std::invalid_argument("Module must be positive");
+
+    // Cacl gcd between a and m
+    mpz_class d;
+    mpz_gcd(d.get_mpz_t(), a.get_mpz_t(), module.get_mpz_t());
+    if(gmp_module(b,d) != 0) return {};
+
+    // Find new coefs
+    mpz_class a_prime = 1, b_prime = 1, m_prime = 1;
+    mpz_tdiv_q(a_prime.get_mpz_t(), a.get_mpz_t(), d.get_mpz_t());
+    mpz_tdiv_q(b_prime.get_mpz_t(), b.get_mpz_t(), d.get_mpz_t());
+    mpz_tdiv_q(m_prime.get_mpz_t(), module.get_mpz_t(), d.get_mpz_t());
+
+
+    // Find inverse of a
+    mpz_class inv_a = inverse_element(a_prime,m_prime);
+
+    // Find x0 solution
+    mpz_class x0 = gmp_multiply(inv_a,b_prime, m_prime);
+
+    // Find all d solutions
+    std::vector<mpz_class>solutions = {};
+    for(mpz_class k=0;k<d;k++){
+        mpz_class sol = gmp_add(x0, k * m_prime, module);
+        solutions.push_back(sol);
+    }
+    return solutions;
+}
+// Solve linear congruence
+std::vector<std::string> solve_linear_congruence(const std::string &a, const std::string &b, const std::string &module){
+    mpz_class a_int = mpz_class(a);
+    mpz_class b_int = mpz_class(b);
+    mpz_class module_int = mpz_class(module);
+
+    std::vector<mpz_class> solutions = solve_linear_congruence(a_int,b_int,module_int);
+    return mpz_to_strings(solutions);
+}

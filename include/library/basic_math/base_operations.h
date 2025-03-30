@@ -16,4 +16,7 @@ std::vector<std::string> extended_gcd(const std::string &a, const std::string &b
 
 std::string inverse_element(const std::string &number, const std::string &module);
 mpz_class inverse_element(const mpz_class &number, const mpz_class &module);
+
+std::vector<mpz_class> solve_linear_congruence(const mpz_class &a, const mpz_class &b, const mpz_class &module);
+std::vector<std::string> solve_linear_congruence(const std::string &a, const std::string &b, const std::string &module);
 #endif //CRYPTO_BASE_OPERATIONS_H
