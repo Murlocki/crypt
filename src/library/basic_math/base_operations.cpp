@@ -10,6 +10,8 @@ using namespace std;
 
 // Function for fast degree alg
 mpz_class fast_degree(const mpz_class &number,const mpz_class &degree,const mpz_class &module){
+    if(degree<1) throw std::invalid_argument("Degree cannot be lesser than 1");
+
     // Get degree in binary
     const std::string binary_degree = gmp_binary(degree);
 
@@ -52,8 +54,14 @@ std::string euler(const std::string &number){
 
 //Extended gcd
 std::vector<mpz_class> extended_gcd(const mpz_class &a, const mpz_class &b, const bool &printing){
-    mpz_class first = a>b? a:b;
-    mpz_class second = a<b? a:b;
+    // Получаем модули чисел
+    mpz_class a_abs;
+    mpz_class b_abs;
+    mpz_abs(a_abs.get_mpz_t(),a.get_mpz_t());
+    mpz_abs(b_abs.get_mpz_t(),b.get_mpz_t());
+
+    mpz_class first = a_abs>b_abs? a_abs:b_abs;
+    mpz_class second = a_abs<b_abs? a_abs:b_abs;
     mpz_class s1 = 1;
     mpz_class s2 = 0;
     mpz_class t1 = 0;
@@ -73,11 +81,13 @@ std::vector<mpz_class> extended_gcd(const mpz_class &a, const mpz_class &b, cons
         first = second, second = r, s1 = s2, s2 = s, t1 = t2, t2 = t;
 
     }
-    if(a<b){
+    if(a_abs<b_abs){
         mpz_class temp = result[1];
         result[1] = result[2];
         result[2] = temp;
     }
+    result[1] *= mpz_sgn(a.get_mpz_t());
+    result[2] *= mpz_sgn(b.get_mpz_t());
     return result;
 }
 //Function for call extended gcd from python
