@@ -1,7 +1,3 @@
-//
-// Created by kirill on 29.03.2025.
-//
-#include<iostream>
 #include "gmpxx.h"
 #include<string>
 using namespace std;

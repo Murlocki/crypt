@@ -15,6 +15,9 @@ pkg_check_modules(gmpxx REQUIRED IMPORTED_TARGET gmpxx)
 add_library(gmp_utils STATIC
         src/library/basic_math/gmp_utils.cpp
         src/library/basic_math/base_operations.cpp
+        src/library/basic_math/base_operations.cpp
+        src/library/extra_functions/convertions.cpp
+
 )
 
 target_link_libraries(gmp_utils PRIVATE
@@ -44,8 +47,12 @@ if(BUILD_PYTHON_MODULE)
     pybind11_add_module(my_module
             src/python/module.cpp
     )
-
+    add_library(convertions src/python/convertions.cpp)
     target_link_libraries(my_module PRIVATE
             gmp_utils
+            convertions
+    )
+    include_directories(
+            ${Python_INCLUDE_DIRS}
     )
 endif()

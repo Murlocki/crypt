@@ -1,10 +1,11 @@
-//
-// Created by kirill on 29.03.2025.
-//
 #include<gmpxx.h>
 #include<gmp.h>
-#include<basic_math/gmp_utils.h>
-#include<basic_math/base_operations.h>
+#include<library/basic_math/gmp_utils.h>
+#include<library/basic_math/base_operations.h>
+#include<library/extra_functions/convertions.h>
+#include<vector>
+#include <format>
+
 using namespace std;
 
 // Function for fast degree alg
@@ -22,7 +23,7 @@ mpz_class fast_degree(const mpz_class &number,const mpz_class &degree,const mpz_
     }
     return result;
 }
-// Function for call fast degree alg
+// Function for call fast degree alg from python
 std::string fast_degree(const std::string& number,const std::string& degree,const std::string& module){
     mpz_class number_int = mpz_class(number);
     mpz_class degree_int = mpz_class(degree);
@@ -43,10 +44,48 @@ mpz_class euler(const mpz_class &number){
    }
    return result;
 }
-// Function for call euler func
+// Function for call euler func from python
 std::string euler(const std::string &number){
     mpz_class number_int = mpz_class(number);
     return euler(number_int).get_str();
+}
+
+//Extended gcd
+std::vector<mpz_class> extended_gcd(const mpz_class &a, const mpz_class &b, const bool &printing){
+    mpz_class first = a>b? a:b;
+    mpz_class second = a<b? a:b;
+    mpz_class s1 = 1;
+    mpz_class s2 = 0;
+    mpz_class t1 = 0;
+    mpz_class t2 = 1;
+    vector<mpz_class> result = {first, s1, t1};
+    while(second!=0){
+        mpz_class q = 1;
+        mpz_tdiv_q(q.get_mpz_t(), first.get_mpz_t(), second.get_mpz_t());
+        mpz_class r = 1;
+        mpz_mmod(r.get_mpz_t(), first.get_mpz_t(), second.get_mpz_t());
+        mpz_class s = s1 - q * s2;
+        mpz_class t = t1 - q * t2;
+        if(printing) std::cout << std::format("Euclid coefficients: q:{} r1:{} r2:{} r:{} s1:{} s2:{} s:{} t1:{} t2:{} t:{}\n",
+                                 q.get_str(), first.get_str(), second.get_str(), r.get_str(), s1.get_str(),
+                                 s2.get_str(), s.get_str(), t1.get_str(), t2.get_str(), t.get_str());
+        result = { second, s, t };
+        first = second, second = r, s1 = s2, s2 = s, t1 = t2, t2 = t;
+
+    }
+    if(a<b){
+        mpz_class temp = result[1];
+        result[1] = result[2];
+        result[2] = temp;
+    }
+    return result;
+}
+//Function for call extended gcd from python
+std::vector<std::string> extended_gcd(const std::string &a, const std::string &b,const bool &printing){
+    mpz_class first = mpz_class(a);
+    mpz_class second = mpz_class(b);
+    std::vector<mpz_class > result = extended_gcd(first, second, printing);
+    return mpz_to_strings(result);
 }
 
 
