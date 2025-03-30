@@ -53,7 +53,7 @@ std::string euler(const std::string &number){
 }
 
 //Extended gcd
-std::vector<mpz_class> extended_gcd(const mpz_class &a, const mpz_class &b, const bool &printing){
+std::vector<mpz_class> extended_gcd(const mpz_class &a, const mpz_class &b, const bool &printing = false){
     // Получаем модули чисел
     mpz_class a_abs;
     mpz_class b_abs;
@@ -77,7 +77,7 @@ std::vector<mpz_class> extended_gcd(const mpz_class &a, const mpz_class &b, cons
         if(printing) std::cout << std::format("Euclid coefficients: q:{} r1:{} r2:{} r:{} s1:{} s2:{} s:{} t1:{} t2:{} t:{}\n",
                                  q.get_str(), first.get_str(), second.get_str(), r.get_str(), s1.get_str(),
                                  s2.get_str(), s.get_str(), t1.get_str(), t2.get_str(), t.get_str());
-        result = { second, s, t };
+        result = { second, s2, t2 };
         first = second, second = r, s1 = s2, s2 = s, t1 = t2, t2 = t;
 
     }
@@ -91,11 +91,28 @@ std::vector<mpz_class> extended_gcd(const mpz_class &a, const mpz_class &b, cons
     return result;
 }
 //Function for call extended gcd from python
-std::vector<std::string> extended_gcd(const std::string &a, const std::string &b,const bool &printing){
+std::vector<std::string> extended_gcd(const std::string &a, const std::string &b,const bool &printing = false){
     mpz_class first = mpz_class(a);
     mpz_class second = mpz_class(b);
     std::vector<mpz_class > result = extended_gcd(first, second, printing);
     return mpz_to_strings(result);
 }
 
+// Calc inverse of number in module m
+mpz_class inverse_element(const mpz_class &number, const mpz_class &module){
+    // Find number mod module
+    mpz_class number_mod = gmp_module(number,module);
 
+    // Get extended gcd coefs
+    std::vector<mpz_class> extend_gcd = extended_gcd(number_mod, module);
+    if(extend_gcd[0] != 1) throw std::invalid_argument("Number and module must be co-prime");
+    return gmp_module(extend_gcd[1],module);
+}
+
+// Func for call of inverse elem calculation from python
+std::string inverse_element(const std::string &number, const std::string &module){
+    mpz_class number_int = mpz_class(number);
+    mpz_class module_int = mpz_class(module);
+    if(module_int<0) throw std::invalid_argument("Module must be positive");
+    return inverse_element(number_int,module_int).get_str();
+}

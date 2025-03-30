@@ -13,4 +13,7 @@ mpz_class euler(const mpz_class &number);
 std::string euler(const std::string &number);
 std::vector<mpz_class> extended_gcd(const mpz_class &a, const mpz_class &b, const bool &printing);
 std::vector<std::string> extended_gcd(const std::string &a, const std::string &b, const bool &printing);
+
+std::string inverse_element(const std::string &number, const std::string &module);
+mpz_class inverse_element(const mpz_class &number, const mpz_class &module);
 #endif //CRYPTO_BASE_OPERATIONS_H

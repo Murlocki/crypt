@@ -30,6 +30,13 @@ std::vector<py::int_> py_extended_gcd(const py::int_ &first, const py::int_ &sec
     ));
 }
 
+py::int_ py_inverse_element(const py::int_ &number, const py::int_ &module) {
+    return string_to_pyint(inverse_element(
+            py::cast<std::string>(py::str(number)),
+            py::cast<std::string>(py::str(module))
+    ));
+}
+
 PYBIND11_MODULE(my_module, m) {
     auto base_operations = m.def_submodule("BaseOperations", "Базовые операции");
     base_operations.def("fast_degree", &py_fast_degree,
@@ -42,5 +49,7 @@ PYBIND11_MODULE(my_module, m) {
                         py::arg("first"),
                         py::arg("second"),
                         py::arg("printing") = py::bool_(false));
-
+    base_operations.def("inverse_element", &py_inverse_element,
+                        py::arg("number"),
+                        py::arg("module")=py::int_(1));
 }
