@@ -10,39 +10,51 @@ namespace py = pybind11;
 
 py::int_ py_fast_degree(const py::int_ &number, const py::int_ &degree, const py::int_ &module) {
     return string_to_pyint(fast_degree(
-            py::cast<std::string>(py::str(number)),
-            py::cast<std::string>(py::str(degree)),
-            py::cast<std::string>(py::str(module))
+            pyint_to_string(number),
+            pyint_to_string(degree),
+            pyint_to_string(module)
     ));
 }
 
 py::int_ py_euler_slow(const py::int_ &number) {
     return string_to_pyint(euler(
-            py::cast<std::string>(py::str(number))
+            pyint_to_string(number)
     ));
 }
 
 std::vector<py::int_> py_extended_gcd(const py::int_ &first, const py::int_ &second, const py::bool_ &printing) {
-    return strings_to_pyint(extended_gcd(
-            py::cast<std::string>(py::str(first)),
-            py::cast<std::string>(py::str(second)),
+    return strings_to_pyints(extended_gcd(
+            pyint_to_string(first),
+            pyint_to_string(second),
             py::cast<bool>(printing)
     ));
 }
 
 py::int_ py_inverse_element(const py::int_ &number, const py::int_ &module) {
     return string_to_pyint(inverse_element(
-            py::cast<std::string>(py::str(number)),
-            py::cast<std::string>(py::str(module))
+            pyint_to_string(number),
+            pyint_to_string(module)
     ));
 }
 
 std::vector<py::int_> py_linear_congruence(const py::int_ &a, const py::int_ &b, const py::int_ &module) {
-    return strings_to_pyint(solve_linear_congruence(
-            py::cast<std::string>(py::str(a)),
-            py::cast<std::string>(py::str(b)),
-            py::cast<std::string>(py::str(module))
+    return strings_to_pyints(solve_linear_congruence(
+            pyint_to_string(a),
+            pyint_to_string(b),
+            pyint_to_string(module)
     ));
+}
+
+std::vector<py::int_> py_chinese_lefts(const std::vector<std::vector<py::int_>> &coefs) {
+    std::vector<std::vector<std::string>> string_coefs = {};
+    string_coefs.reserve(coefs.size());
+    std::transform(
+            coefs.begin(), coefs.end(),
+            std::back_inserter(string_coefs),
+            [](const std::vector<py::int_>& coef_vect) {
+                return pyints_to_strings(coef_vect); }
+            );
+    return strings_to_pyints(solve_lefts(string_coefs));
 }
 
 PYBIND11_MODULE(my_module, m) {
@@ -64,4 +76,6 @@ PYBIND11_MODULE(my_module, m) {
                         py::arg("a"),
                         py::arg("b"),
                         py::arg("module"));
+    base_operations.def("solve_chinese_lefts", &py_chinese_lefts,
+                        py::arg("coefs"));
 }

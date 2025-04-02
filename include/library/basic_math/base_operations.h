@@ -1,7 +1,3 @@
-//
-// Created by kirill on 29.03.2025.
-//
-
 #ifndef CRYPTO_BASE_OPERATIONS_H
 #define CRYPTO_BASE_OPERATIONS_H
 #include<iostream>
@@ -19,4 +15,12 @@ mpz_class inverse_element(const mpz_class &number, const mpz_class &module);
 
 std::vector<mpz_class> solve_linear_congruence(const mpz_class &a, const mpz_class &b, const mpz_class &module);
 std::vector<std::string> solve_linear_congruence(const std::string &a, const std::string &b, const std::string &module);
+
+
+bool check_coprime_coefs(const std::vector<std::vector<mpz_class>> &coefs);
+std::vector<mpz_class> solve_lefts_coprime(const std::vector<std::vector<mpz_class>> &coefs);
+bool check_no_coprime_coefs(const std::vector<std::vector<mpz_class>> &coefs);
+std::vector<mpz_class> solve_lefts_not_coprime(const std::vector<std::vector<mpz_class>> &coefs);
+std::vector<mpz_class> solve_lefts(const std::vector<std::vector<mpz_class>> &coefs);
+std::vector<std::string> solve_lefts(const std::vector<std::vector<std::string>> &coefs);
 #endif //CRYPTO_BASE_OPERATIONS_H

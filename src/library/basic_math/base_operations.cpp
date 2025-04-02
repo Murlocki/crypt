@@ -1,5 +1,4 @@
 #include<gmpxx.h>
-#include<gmp.h>
 #include<library/basic_math/gmp_utils.h>
 #include<library/basic_math/base_operations.h>
 #include<library/extra_functions/convertions.h>
@@ -121,15 +120,19 @@ std::string inverse_element(const std::string &number, const std::string &module
 std::vector<mpz_class> solve_linear_congruence(const mpz_class &a, const mpz_class &b, const mpz_class &module){
     if(module<0) throw std::invalid_argument("Module must be positive");
 
+    //Find mod of all coefs
+    mpz_class a_mod = gmp_module(a,module);
+    mpz_class b_mod = gmp_module(b,module);
+
     // Cacl gcd between a and m
     mpz_class d;
-    mpz_gcd(d.get_mpz_t(), a.get_mpz_t(), module.get_mpz_t());
+    mpz_gcd(d.get_mpz_t(), a_mod.get_mpz_t(), module.get_mpz_t());
     if(gmp_module(b,d) != 0) return {};
 
     // Find new coefs
     mpz_class a_prime = 1, b_prime = 1, m_prime = 1;
-    mpz_tdiv_q(a_prime.get_mpz_t(), a.get_mpz_t(), d.get_mpz_t());
-    mpz_tdiv_q(b_prime.get_mpz_t(), b.get_mpz_t(), d.get_mpz_t());
+    mpz_tdiv_q(a_prime.get_mpz_t(), a_mod.get_mpz_t(), d.get_mpz_t());
+    mpz_tdiv_q(b_prime.get_mpz_t(), b_mod.get_mpz_t(), d.get_mpz_t());
     mpz_tdiv_q(m_prime.get_mpz_t(), module.get_mpz_t(), d.get_mpz_t());
 
 
@@ -147,7 +150,7 @@ std::vector<mpz_class> solve_linear_congruence(const mpz_class &a, const mpz_cla
     }
     return solutions;
 }
-// Solve linear congruence
+// Function for calling of lin congr solving
 std::vector<std::string> solve_linear_congruence(const std::string &a, const std::string &b, const std::string &module){
     mpz_class a_int = mpz_class(a);
     mpz_class b_int = mpz_class(b);
@@ -155,4 +158,96 @@ std::vector<std::string> solve_linear_congruence(const std::string &a, const std
 
     std::vector<mpz_class> solutions = solve_linear_congruence(a_int,b_int,module_int);
     return mpz_to_strings(solutions);
+}
+
+
+
+std::vector<std::string> solve_lefts(const std::vector<std::vector<string>> &coefs){
+    if(coefs.empty()) throw std::invalid_argument("The system must contain at least 1 equation");
+    std::vector<std::vector<mpz_class>> mpz_coefs;
+    mpz_coefs.reserve(coefs.size());
+    std::transform(
+            coefs.begin(), coefs.end(),
+            std::back_inserter(mpz_coefs),
+            [](const std::vector<std::string> &coef) { return strings_to_mpzs(coef); }
+    );
+    return mpz_to_strings(solve_lefts(mpz_coefs));
+}
+
+
+std::vector<mpz_class> solve_lefts(const std::vector<std::vector<mpz_class>> &coefs){
+    if(coefs.empty()) throw std::invalid_argument("The system must contain at least 1 equation");
+
+    std::vector<std::vector<mpz_class>> coefs_mod = {};
+    for(const auto & coef : coefs){
+        coefs_mod.push_back({gmp_module(coef[0],coef[1]),coef[1]});
+    }
+    if(check_coprime_coefs((coefs))) return solve_lefts_coprime(coefs);
+    return solve_lefts_not_coprime(coefs);
+}
+
+bool check_coprime_coefs(const std::vector<std::vector<mpz_class>> &coefs){
+    for(int i=0;i<coefs.size()-1;i++){
+        for(int j=i+1;j<coefs.size();j++){
+            mpz_class gcd = 1;
+            mpz_gcd(gcd.get_mpz_t(), coefs[i][1].get_mpz_t(), coefs[j][1].get_mpz_t());
+            if(gcd != 1) return false;
+        }
+    }
+    return true;
+}
+
+std::vector<mpz_class> solve_lefts_coprime(const std::vector<std::vector<mpz_class>> &coefs){
+
+    // Calc M coef
+    mpz_class M_coef = 1;
+    for(const auto & coef : coefs){
+        M_coef *= coef[1];
+    }
+    //Calc new a-coefs
+    std::vector<mpz_class> new_a_coefs = {};
+    for(const auto & coef : coefs){
+        new_a_coefs.push_back(gmp_div(M_coef,coef[1]));
+    }
+    //Calc solutions for every lin congruence
+    std::vector<mpz_class> solutions = {};
+    for(int i=0;i<coefs.size();i++){
+        solutions.push_back(solve_linear_congruence(new_a_coefs[i], coefs[i][0], coefs[i][1])[0]);
+    }
+
+    mpz_class result = 0;
+    for(int i=0;i<solutions.size();i++){
+        result = gmp_add(result, new_a_coefs[i] * solutions[i], M_coef);
+    }
+    return {result, M_coef};
+}
+
+
+bool check_no_coprime_coefs(const std::vector<std::vector<mpz_class>> &coefs){
+    for(int i = 0; i<coefs.size()-1;i++){
+        for(int j=i+1;j<coefs.size();j++){
+            mpz_class gcd = 1;
+            mpz_gcd(gcd.get_mpz_t(),coefs[i][1].get_mpz_t(),coefs[j][1].get_mpz_t());
+            if(gmp_module(coefs[i][0],gcd)!= gmp_module(coefs[j][0],gcd)){
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+
+std::vector<mpz_class> solve_lefts_not_coprime(const std::vector<std::vector<mpz_class>> &coefs){
+    if(!(check_no_coprime_coefs(coefs))) return {};
+    std::vector<mpz_class> solution = {coefs[0][0],coefs[0][1]};
+    for(int i = 1; i<coefs.size(); i++){
+        std::vector<mpz_class> lin_cong_solution = solve_linear_congruence(solution[1],coefs[i][0] - solution[0], coefs[i][1]);
+        if(lin_cong_solution.size()>1){
+            lin_cong_solution[1] = gmp_add(lin_cong_solution[1], - lin_cong_solution[0], coefs[i][1]);
+        }
+        else lin_cong_solution.push_back(coefs[i][1]);
+        solution[0] = gmp_add(solution[0],solution[1]*lin_cong_solution[0],solution[1]*lin_cong_solution[1]);
+        solution[1] = solution[1]*lin_cong_solution[1];
+    }
+    return solution;
 }
