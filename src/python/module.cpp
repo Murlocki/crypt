@@ -73,6 +73,9 @@ std::vector<std::vector<py::int_>> py_diofant_equations(const py::int_ &a, const
     return result;
 }
 
+std::vector<py::int_> py_prime_roots(const py::int_ &module) {
+    return strings_to_pyints(find_prime_roots(pyint_to_string(module)));
+}
 
 PYBIND11_MODULE(my_module, m) {
     auto base_operations = m.def_submodule("BaseOperations", "Базовые операции");
@@ -100,4 +103,7 @@ PYBIND11_MODULE(my_module, m) {
                         py::arg("b"),
                         py::arg("d")
                         );
+    base_operations.def("find_prime_roots", &py_prime_roots,
+                        py::arg("module")
+    );
 }

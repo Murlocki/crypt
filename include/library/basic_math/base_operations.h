@@ -27,4 +27,9 @@ std::vector<std::string> solve_lefts(const std::vector<std::vector<std::string>>
 
 std::vector<std::vector<mpz_class>> solve_diofant_equation(const mpz_class &a, const mpz_class &b, const mpz_class& d);
 std::vector<std::vector<std::string>> solve_diofant_equation(const std::string &a, const std::string &b, const std::string& d);
+
+std::vector<mpz_class> find_prime_dels(const mpz_class &number);
+std::vector<std::string> find_prime_roots(const std::string &module);
+std::vector<mpz_class> find_prime_roots(const mpz_class &module);
+
 #endif //CRYPTO_BASE_OPERATIONS_H

@@ -4,11 +4,12 @@
 #include<library/extra_functions/convertions.h>
 #include<vector>
 #include <format>
+#include <set>
 
 using namespace std;
 
 // Function for fast degree alg
-mpz_class fast_degree(const mpz_class &number,const mpz_class &degree,const mpz_class &module){
+mpz_class fast_degree(const mpz_class &number,const mpz_class &degree,const mpz_class &module = 1){
     if(degree<1) throw std::invalid_argument("Degree cannot be lesser than 1");
 
     // Get degree in binary
@@ -25,7 +26,7 @@ mpz_class fast_degree(const mpz_class &number,const mpz_class &degree,const mpz_
     return result;
 }
 // Function for call fast degree alg from python
-std::string fast_degree(const std::string& number,const std::string& degree,const std::string& module){
+std::string fast_degree(const std::string& number,const std::string& degree,const std::string& module = "1"){
     mpz_class number_int = mpz_class(number);
     mpz_class degree_int = mpz_class(degree);
     mpz_class module_int = mpz_class(module);
@@ -253,7 +254,7 @@ std::vector<mpz_class> solve_lefts_not_coprime(const std::vector<std::vector<mpz
 }
 
 
-
+// Function for solving diofant equation
 std::vector<std::vector<mpz_class>> solve_diofant_equation(const mpz_class &a, const mpz_class &b, const mpz_class& d){
     mpz_class a_b_nod = 1;
     mpz_gcd(a_b_nod.get_mpz_t(), a.get_mpz_t(), b.get_mpz_t());
@@ -276,6 +277,7 @@ std::vector<std::vector<mpz_class>> solve_diofant_equation(const mpz_class &a, c
     return result;
 }
 
+//Function for calling solving of diofant equation from python
 std::vector<std::vector<std::string>> solve_diofant_equation(const std::string &a, const std::string &b, const std::string& d){
     mpz_class a_int = mpz_class(a);
     mpz_class b_int = mpz_class(b);
@@ -290,5 +292,51 @@ std::vector<std::vector<std::string>> solve_diofant_equation(const std::string &
             std::back_inserter(result),
             [](const std::vector<mpz_class> &coef) { return mpz_to_strings(coef); }
             );
+    return result;
+}
+
+
+std::vector<mpz_class> find_prime_roots(const mpz_class &module){
+    std::vector<mpz_class>result = {};
+
+    mpz_class euler_value = euler(module);
+    std::vector<mpz_class> prime_dels = find_prime_dels(euler_value);
+    mpz_class root = 2;
+    while(root!=module){
+        bool ok = true;
+        for(const mpz_class& del: prime_dels){
+            if(fast_degree(root, gmp_div(euler_value, del),module)==1){
+                ok = false;
+                break;
+            }
+        }
+        if(ok) break;
+        root+=1;
+    }
+    if(root==module) return result;
+    result.push_back(root);
+    for(mpz_class i = 2; i<euler_value;i++){
+        mpz_class gcd = 1;
+        mpz_gcd(gcd.get_mpz_t(), i.get_mpz_t(), euler_value.get_mpz_t());
+        if(gcd==1) result.push_back(fast_degree(root,i,module));
+    }
+    return result;
+
+}
+std::vector<string> find_prime_roots(const string &module){
+    return mpz_to_strings(find_prime_roots(mpz_class(module)));
+}
+std::vector<mpz_class> find_prime_dels(const mpz_class &number){
+    std::vector<mpz_class>result = {};
+    mpz_class current_del = 1;
+    mpz_class current_number = number;
+    for(mpz_class i = 2; i<current_number/2;i++){
+        if(gmp_module(current_number,i)==0){
+            result.push_back(i);
+            while(gmp_module(current_number,i) == 0){
+                current_number = gmp_div(current_number,i);
+            }
+        }
+    }
     return result;
 }
