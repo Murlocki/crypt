@@ -23,4 +23,8 @@ bool check_no_coprime_coefs(const std::vector<std::vector<mpz_class>> &coefs);
 std::vector<mpz_class> solve_lefts_not_coprime(const std::vector<std::vector<mpz_class>> &coefs);
 std::vector<mpz_class> solve_lefts(const std::vector<std::vector<mpz_class>> &coefs);
 std::vector<std::string> solve_lefts(const std::vector<std::vector<std::string>> &coefs);
+
+
+std::vector<std::vector<mpz_class>> solve_diofant_equation(const mpz_class &a, const mpz_class &b, const mpz_class& d);
+std::vector<std::vector<std::string>> solve_diofant_equation(const std::string &a, const std::string &b, const std::string& d);
 #endif //CRYPTO_BASE_OPERATIONS_H

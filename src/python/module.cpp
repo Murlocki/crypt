@@ -56,6 +56,23 @@ std::vector<py::int_> py_chinese_lefts(const std::vector<std::vector<py::int_>> 
             );
     return strings_to_pyints(solve_lefts(string_coefs));
 }
+std::vector<std::vector<py::int_>> py_diofant_equations(const py::int_ &a, const py::int_ &b, const py::int_ &d) {
+
+    std::vector<std::vector<std::string>> string_result = solve_diofant_equation(
+                    pyint_to_string(a),
+                    pyint_to_string(b),
+                    pyint_to_string(d)
+            );
+    std::vector<std::vector<py::int_>> result;
+    std::transform(
+            string_result.begin(), string_result.end(),
+            std::back_inserter(result),
+            [](const std::vector<std::string>& coef_vect) {
+                return strings_to_pyints(coef_vect); }
+            );
+    return result;
+}
+
 
 PYBIND11_MODULE(my_module, m) {
     auto base_operations = m.def_submodule("BaseOperations", "Базовые операции");
@@ -78,4 +95,9 @@ PYBIND11_MODULE(my_module, m) {
                         py::arg("module"));
     base_operations.def("solve_chinese_lefts", &py_chinese_lefts,
                         py::arg("coefs"));
+    base_operations.def("solve_diofant_equation", &py_diofant_equations,
+                        py::arg("a"),
+                        py::arg("b"),
+                        py::arg("d")
+                        );
 }

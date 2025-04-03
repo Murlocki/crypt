@@ -251,3 +251,44 @@ std::vector<mpz_class> solve_lefts_not_coprime(const std::vector<std::vector<mpz
     }
     return solution;
 }
+
+
+
+std::vector<std::vector<mpz_class>> solve_diofant_equation(const mpz_class &a, const mpz_class &b, const mpz_class& d){
+    mpz_class a_b_nod = 1;
+    mpz_gcd(a_b_nod.get_mpz_t(), a.get_mpz_t(), b.get_mpz_t());
+
+    mpz_class d_mod = 1;
+    mpz_mmod(d_mod.get_mpz_t(), d.get_mpz_t(), a_b_nod.get_mpz_t());
+    if(d_mod!=0) return {};
+
+    mpz_class a_main, b_main, d_main;
+    mpz_div(a_main.get_mpz_t(), a.get_mpz_t(), a_b_nod.get_mpz_t());
+    mpz_div(b_main.get_mpz_t(), b.get_mpz_t(), a_b_nod.get_mpz_t());
+    mpz_div(d_main.get_mpz_t(), d.get_mpz_t(), a_b_nod.get_mpz_t());
+
+    std::vector<mpz_class> coefs = extended_gcd(a_main,b_main);
+    std::vector<std::vector<mpz_class>> result = {{},{}};
+    result[0].emplace_back(coefs[1]*d_main);
+    result[0].emplace_back(result[0][0]!=0? mpz_sgn(result[0][0].get_mpz_t())*b:b);
+    result[1].emplace_back(coefs[2]*d_main);
+    result[1].emplace_back(result[1][0]!=0? mpz_sgn(result[1][0].get_mpz_t()) * a: -1 * a);
+    return result;
+}
+
+std::vector<std::vector<std::string>> solve_diofant_equation(const std::string &a, const std::string &b, const std::string& d){
+    mpz_class a_int = mpz_class(a);
+    mpz_class b_int = mpz_class(b);
+    mpz_class d_int = mpz_class(d);
+    if(a_int==0 && b_int==0 && d_int==0) return {{"1","0"},{"1","0"}};
+    else if(a_int==0 && b_int==0 && d_int!=0) return {{},{}};
+
+    std::vector<std::vector<std::string>> result;
+    std::vector<std::vector<mpz_class>> result_mpz = solve_diofant_equation(a_int,b_int,d_int);
+    std::transform(
+            result_mpz.begin(), result_mpz.end(),
+            std::back_inserter(result),
+            [](const std::vector<mpz_class> &coef) { return mpz_to_strings(coef); }
+            );
+    return result;
+}
