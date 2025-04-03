@@ -5,8 +5,14 @@
 #include<vector>
 mpz_class fast_degree(const mpz_class &number,const mpz_class &degree,const mpz_class &module);
 std::string fast_degree(const std::string& number,const std::string& degree,const std::string& module);
+
+
 mpz_class euler(const mpz_class &number);
 std::string euler(const std::string &number);
+
+mpz_class euler_def(const mpz_class &number);
+std::string euler_def(const std::string &number);
+
 std::vector<mpz_class> extended_gcd(const mpz_class &a, const mpz_class &b, const bool &printing);
 std::vector<std::string> extended_gcd(const std::string &a, const std::string &b, const bool &printing);
 

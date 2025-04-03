@@ -22,6 +22,13 @@ py::int_ py_euler_slow(const py::int_ &number) {
     ));
 }
 
+py::int_ py_euler_def(const py::int_ &number) {
+    return string_to_pyint(euler_def(
+            pyint_to_string(number)
+    ));
+}
+
+
 std::vector<py::int_> py_extended_gcd(const py::int_ &first, const py::int_ &second, const py::bool_ &printing) {
     return strings_to_pyints(extended_gcd(
             pyint_to_string(first),
@@ -84,6 +91,8 @@ PYBIND11_MODULE(my_module, m) {
                         py::arg("degree"),
                         py::arg("module") = py::int_(1));
     base_operations.def("euler_slow", &py_euler_slow,
+                        py::arg("number"));
+    base_operations.def("euler_def", &py_euler_def,
                         py::arg("number"));
     base_operations.def("extended_gcd", &py_extended_gcd,
                         py::arg("first"),

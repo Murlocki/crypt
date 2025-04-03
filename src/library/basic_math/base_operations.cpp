@@ -52,6 +52,22 @@ std::string euler(const std::string &number){
     return euler(number_int).get_str();
 }
 
+// Function for calc euler function vid definition
+mpz_class euler_def(const mpz_class &number){
+    mpz_class result = number;
+    std::vector<mpz_class> prime_dels = find_prime_dels(number);
+    prime_dels.push_back(number);
+    for(const mpz_class& del:prime_dels){
+        result = result * (del - 1) / del;
+    }
+    return result;
+}
+// Function for call euler func from python
+std::string euler_def(const std::string &number){
+    mpz_class number_int = mpz_class(number);
+    return euler_def(number_int).get_str();
+}
+
 //Extended gcd
 std::vector<mpz_class> extended_gcd(const mpz_class &a, const mpz_class &b, const bool &printing = false){
     // Получаем модули чисел
