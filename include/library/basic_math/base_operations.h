@@ -38,4 +38,10 @@ std::vector<mpz_class> find_prime_dels(const mpz_class &number);
 std::vector<std::string> find_prime_roots(const std::string &module);
 std::vector<mpz_class> find_prime_roots(const mpz_class &module);
 
+
+mpz_class legendre_symbol(const mpz_class& a, const mpz_class &p);
+std::vector<mpz_class> tonelli_shanks(const mpz_class& a, const mpz_class& p);
+std::vector<std::pair<mpz_class, mpz_class>> factorize(mpz_class n);
+std::vector<mpz_class> solve_quadratic_congruence(const mpz_class& a, const mpz_class& m);
+std::vector<std::string> solve_quadratic_congruence(const std::string &a, const std::string &m);
 #endif //CRYPTO_BASE_OPERATIONS_H

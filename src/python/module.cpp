@@ -83,6 +83,9 @@ std::vector<std::vector<py::int_>> py_diofant_equations(const py::int_ &a, const
 std::vector<py::int_> py_prime_roots(const py::int_ &module) {
     return strings_to_pyints(find_prime_roots(pyint_to_string(module)));
 }
+std::vector<py::int_> py_quadratic_congruence(const py::int_ &a, const py::int_ &module) {
+    return strings_to_pyints(solve_quadratic_congruence(pyint_to_string(a),pyint_to_string(module)));
+}
 
 PYBIND11_MODULE(my_module, m) {
     auto base_operations = m.def_submodule("BaseOperations", "Базовые операции");
@@ -114,5 +117,8 @@ PYBIND11_MODULE(my_module, m) {
                         );
     base_operations.def("find_prime_roots", &py_prime_roots,
                         py::arg("module")
+    );
+    base_operations.def("solve_quadratic_congruence", &py_quadratic_congruence,
+                        py::arg("a"),py::arg("module")
     );
 }
