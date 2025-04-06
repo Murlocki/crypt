@@ -87,6 +87,11 @@ std::vector<py::int_> py_quadratic_congruence(const py::int_ &a, const py::int_ 
     return strings_to_pyints(solve_quadratic_congruence(pyint_to_string(a),pyint_to_string(module)));
 }
 
+std::pair<std::vector<py::int_>,std::vector<py::int_>> py_quadratic_res_and_non_res(const py::int_ &module) {
+    auto result = find_quadratic_residues_nonresidues(pyint_to_string(module));
+    return std::pair(strings_to_pyints(result.first),strings_to_pyints(result.second));
+}
+
 PYBIND11_MODULE(my_module, m) {
     auto base_operations = m.def_submodule("BaseOperations", "Базовые операции");
     base_operations.def("fast_degree", &py_fast_degree,
@@ -120,5 +125,8 @@ PYBIND11_MODULE(my_module, m) {
     );
     base_operations.def("solve_quadratic_congruence", &py_quadratic_congruence,
                         py::arg("a"),py::arg("module")
+    );
+    base_operations.def("find_quadratic_residues_and_non_residues", &py_quadratic_res_and_non_res,
+                        py::arg("module")
     );
 }

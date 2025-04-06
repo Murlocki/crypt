@@ -3,6 +3,8 @@
 #include<iostream>
 #include"gmpxx.h"
 #include<vector>
+#include <set>
+
 mpz_class fast_degree(const mpz_class &number,const mpz_class &degree,const mpz_class &module);
 std::string fast_degree(const std::string& number,const std::string& degree,const std::string& module);
 
@@ -44,4 +46,8 @@ std::vector<mpz_class> tonelli_shanks(const mpz_class& a, const mpz_class& p);
 std::vector<std::pair<mpz_class, mpz_class>> factorize(mpz_class n);
 std::vector<mpz_class> solve_quadratic_congruence(const mpz_class& a, const mpz_class& m);
 std::vector<std::string> solve_quadratic_congruence(const std::string &a, const std::string &m);
+
+std::pair<std::vector<mpz_class>,std::vector<mpz_class>> find_quadratic_residues_nonresidues(const mpz_class &module);
+std::pair<std::vector<std::string>,std::vector<std::string>> find_quadratic_residues_nonresidues(const std::string &module);
+
 #endif //CRYPTO_BASE_OPERATIONS_H

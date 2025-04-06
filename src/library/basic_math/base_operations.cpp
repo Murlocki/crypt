@@ -324,7 +324,7 @@ solve_diofant_equation(const std::string &a, const std::string &b, const std::st
     return result;
 }
 
-
+// Function for finding prime roots of module field
 std::vector<mpz_class> find_prime_roots(const mpz_class &module) {
     std::vector<mpz_class> result = {};
 
@@ -353,15 +353,16 @@ std::vector<mpz_class> find_prime_roots(const mpz_class &module) {
 
 }
 
+// Function for calling finding of prime roots from python
 std::vector<string> find_prime_roots(const string &module) {
     return mpz_to_strings(find_prime_roots(mpz_class(module)));
 }
 
+// Function for finding all prime dels of number
 std::vector<mpz_class> find_prime_dels(const mpz_class &number) {
     std::vector<mpz_class> result = {};
-    mpz_class current_del = 1;
     mpz_class current_number = number;
-    for (mpz_class i = 2; i < current_number / 2; i++) {
+    for (mpz_class i = 2; i <= current_number / 2; i++) {
         if (gmp_module(current_number, i) == 0) {
             result.push_back(i);
             while (gmp_module(current_number, i) == 0) {
@@ -373,10 +374,34 @@ std::vector<mpz_class> find_prime_dels(const mpz_class &number) {
 }
 
 
-// Символ Лежандра (a/p)
+// Function for calcing legendre symbol
 mpz_class legendre_symbol(const mpz_class &a, const mpz_class &p) {
     mpz_class ls = fast_degree(a, (p - 1) / 2, p);
     return ls == p - 1 ? -1 : ls;
+}
+
+// Function for finding all quadratic residues and non-residues
+std::pair<std::vector<mpz_class>,std::vector<mpz_class>> find_quadratic_residues_nonresidues(const mpz_class &module) {
+    std::vector<mpz_class> residues = {};
+    std::vector<mpz_class> non_residues = {};
+
+    if(find_prime_dels(module).empty() ){
+        for(mpz_class i=0;i<module;i++){
+            mpz_class legendre_symb = legendre_symbol(i,module);
+            if(legendre_symb==1 || legendre_symb==0) residues.emplace_back(i);
+            else non_residues.emplace_back(i);
+        }
+    }
+    else{
+        throw std::invalid_argument("Module must be primitive");
+    }
+    return pair(residues,non_residues);
+}
+// Function for calling finding all quadratic residues and non-residues from python
+std::pair<std::vector<std::string>,std::vector<std::string>> find_quadratic_residues_nonresidues(const std::string &module){
+    mpz_class module_int = mpz_class(module);
+    auto result_int = find_quadratic_residues_nonresidues(module_int);
+    return pair(mpz_to_strings(result_int.first),mpz_to_strings(result_int.second));
 }
 
 // Алгоритм Тонелли-Шенкса для нахождения квадратного корня по модулю p
