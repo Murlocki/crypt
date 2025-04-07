@@ -4,9 +4,10 @@
 #include "library/basic_math/gmp_utils.h"
 #include "library/polynoms/PolynomialSolver.h"
 int main() {
-    auto a = PolynomialSolver("2","x^3+3x+1");
-    for(auto x: a.parsePolynomial("x")){
-        std::cout<<x<<" ";
-    }
+    auto a = PolynomialSolver("3","x^4");
+//    for(auto x: a.parse_polynomial("x")){
+//        std::cout<<x<<" ";
+//    }
+    std::cout<<a.add_polynomial("2x^3+1","2x^3+2");
     return 0;
 }
