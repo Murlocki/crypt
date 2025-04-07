@@ -8,6 +8,6 @@ int main() {
 //    for(auto x: a.parse_polynomial("x")){
 //        std::cout<<x<<" ";
 //    }
-    std::cout<<a.add_polynomial("2x^3+1","2x^3+2");
+    std::cout<<a.mult_polynomial("2x^3+1","2x^3+2");
     return 0;
 }

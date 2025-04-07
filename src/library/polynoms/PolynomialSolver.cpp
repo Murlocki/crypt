@@ -104,7 +104,7 @@ PolynomialSolver::add_polynomial(const std::string &polynomial_first, const std:
     std::vector<mpz_class> first_vector = this->parse_polynomial(polynomial_first);
     std::vector<mpz_class> second_vector = this->parse_polynomial(polynomial_second);
     std::vector<mpz_class> polSum = this->sum_vector_pols(first_vector, second_vector);
-    std::vector<mpz_class> result = this->del_pols(polSum,this->module);
+    std::vector<mpz_class> result = this->del_vector_pols(polSum,this->module);
     return PolynomialSolver::vector_to_str(result);
 }
 
@@ -125,7 +125,7 @@ std::vector<mpz_class > PolynomialSolver::calculate_deliter(const std::vector<mp
 }
 
 std::vector<mpz_class>
-PolynomialSolver::del_pols(const std::vector<mpz_class>& polynomial_vector, const std::vector<mpz_class>& polynomial_del_vector){
+PolynomialSolver::del_vector_pols(const std::vector<mpz_class>& polynomial_vector, const std::vector<mpz_class>& polynomial_del_vector){
     if(polynomial_vector.size() < polynomial_del_vector.size()) return polynomial_vector;
 
     std::vector<mpz_class> result;
@@ -165,3 +165,34 @@ bool PolynomialSolver::greater_vector(std::vector<mpz_class> vector_first, std::
     return true;
 }
 
+std::vector<mpz_class> PolynomialSolver::mult_vector_pols(const std::vector<mpz_class>& polynomial_vector1,const std::vector<mpz_class>& polynomial_vector2){
+    std::vector<mpz_class>second,first;
+    if(polynomial_vector1.size() < polynomial_vector2.size()){
+        second = polynomial_vector1;
+        first = polynomial_vector2;
+    }
+    else{
+        first = polynomial_vector1;
+        second = polynomial_vector2;
+    }
+    std::vector<mpz_class> result;
+    for(const auto & i : first){
+        //std::cout<<i<<" "<<result.size()<<std::endl;
+        result.emplace_back(0);
+        std::vector<mpz_class> secondMult;
+        std::transform(second.begin(), second.end(), std::back_inserter(secondMult),
+                       [first,&i](const mpz_class& x) { return x * i; });
+        //std::cout<<123<<std::endl;
+        result = this->sum_vector_pols(result,secondMult);
+    }
+    return result;
+}
+
+std::string PolynomialSolver::mult_polynomial(const std::string& polynomial_first,const std::string& polynomial_second) {
+    std::vector<mpz_class> first_vector = this->parse_polynomial(polynomial_first);
+    std::vector<mpz_class> second_vector = this->parse_polynomial(polynomial_second);
+
+    std::vector<mpz_class> pol_mult_vector = this->mult_vector_pols(first_vector, second_vector);
+    std::vector<mpz_class> result = this->del_vector_pols(pol_mult_vector, this->module);
+    return this->vector_to_str(result);
+}
