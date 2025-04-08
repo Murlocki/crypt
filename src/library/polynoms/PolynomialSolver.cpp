@@ -1,23 +1,25 @@
 #include "library/polynoms/PolynomialSolver.h"
 #include "library/extra_functions/convertions.h"
 #include "library/basic_math/gmp_utils.h"
+#include "library/basic_math/base_operations.h"
 #include<iostream>
 #include<vector>
+#include <unordered_map>
+using std::vector,std::string,std::cout,std::endl,std::set;
 
-
-PolynomialSolver::PolynomialSolver(const std::string &gf, const std::string &module) {
+PolynomialSolver::PolynomialSolver(const string &gf, const string &module) {
     this->gf = mpz_class(gf);
 
     if (module.empty() || module.size() == 1 && module[0] == 0) throw std::invalid_argument("Polynomial module ");
-    this->module = this->parse_polynomial(module);
+    this->module = PolynomialSolver::parse_polynomial(module,this->gf);
 };
 
-std::vector<mpz_class> PolynomialSolver::parse_polynomial(const std::string &polynomial_str) const {
-    std::string polynomialStr_modified = polynomial_str + '+';
+vector<mpz_class> PolynomialSolver::parse_polynomial(const string &polynomial_str, const mpz_class &gf){
+    string polynomialStr_modified = polynomial_str + '+';
 
     // Разбиваем строку полинома на слагаемые
-    std::vector<std::string> elems = {};
-    std::string currentElem;
+    vector<string> elems = {};
+    string currentElem;
     for (char s: polynomialStr_modified) {
         if (s == '-') {
             elems.emplace_back(currentElem);
@@ -28,10 +30,10 @@ std::vector<mpz_class> PolynomialSolver::parse_polynomial(const std::string &pol
         } else currentElem += s;
     }
 
-    std::vector<mpz_class> coefs = {};
-    std::vector<int> degrees = {};
-    for (const std::string &elem: elems) {
-        std::vector<std::string> comp = split_by_string(elem, "x");
+    vector<mpz_class> coefs = {};
+    vector<int> degrees = {};
+    for (const string &elem: elems) {
+        vector<string> comp = split_by_string(elem, "x");
         mpz_class coef;
         int degree;
         if (comp.size() == 2) {
@@ -45,22 +47,22 @@ std::vector<mpz_class> PolynomialSolver::parse_polynomial(const std::string &pol
         degrees.emplace_back(degree);
     }
 
-    std::vector<mpz_class> result;
+    vector<mpz_class> result;
     result.resize(degrees[0] + 1, mpz_class(0));
     for (int i = 0; i < degrees.size(); i++) {
-        result[degrees[i]] = gmp_module(coefs[i], this->gf);
+        result[degrees[i]] = gmp_module(coefs[i], gf);
     }
     std::reverse(result.begin(), result.end());
-    for (const auto& x: result) {
-        std::cout << x << " ";
-    }
-    std::cout << std::endl;
+//    for (const auto& x: result) {
+//        std::cout << x << " ";
+//    }
+//    std::cout << std::endl;
     return result;
 }
 
-std::vector<mpz_class> PolynomialSolver::sum_vector_pols(const std::vector<mpz_class> &polynomial_first_vector,
-                                                         const std::vector<mpz_class> &polynomial_second_vector) const {
-    std::vector<mpz_class> sum_vector;
+vector<mpz_class> PolynomialSolver::sum_vector_pols(const vector<mpz_class> &polynomial_first_vector,
+                                                         const vector<mpz_class> &polynomial_second_vector) const {
+    vector<mpz_class> sum_vector;
     if (polynomial_first_vector.size() > polynomial_second_vector.size()) {
         std::copy(polynomial_first_vector.begin(), polynomial_first_vector.end(), std::back_inserter(sum_vector));
     } else std::copy(polynomial_second_vector.begin(), polynomial_second_vector.end(), std::back_inserter(sum_vector));
@@ -75,16 +77,14 @@ std::vector<mpz_class> PolynomialSolver::sum_vector_pols(const std::vector<mpz_c
     int i = 0;
     while (i < sum_vector.size() && sum_vector[i] == 0) i = i + 1;
 
-    std::vector<mpz_class> result;
+    vector<mpz_class> result;
     std::copy(sum_vector.begin() + i, sum_vector.end(), std::back_inserter(result));
-
-    for(auto x:result) std::cout<<x<<" ";
-    std::cout<<std::endl;
+    
     return result;
 }
 
-std::string PolynomialSolver::vector_to_str(const std::vector<mpz_class> &polynomial_vector) {
-    std::string result;
+string PolynomialSolver::vector_to_str(const vector<mpz_class> &polynomial_vector) {
+    string result;
     if (polynomial_vector.empty() || polynomial_vector[0] == 0 && polynomial_vector.size() == 1) return "0";
     for (int i = 0; i < polynomial_vector.size(); i++) {
         if (polynomial_vector[i] > 0) {
@@ -99,20 +99,20 @@ std::string PolynomialSolver::vector_to_str(const std::vector<mpz_class> &polyno
     return result.empty() ? "0" : result.substr(0, result.size() - 1);
 }
 
-std::string
-PolynomialSolver::add_polynomial(const std::string &polynomial_first, const std::string &polynomial_second) {
-    std::vector<mpz_class> first_vector = this->parse_polynomial(polynomial_first);
-    std::vector<mpz_class> second_vector = this->parse_polynomial(polynomial_second);
-    std::vector<mpz_class> polSum = this->sum_vector_pols(first_vector, second_vector);
-    std::vector<mpz_class> result = this->del_vector_pols(polSum,this->module);
+string
+PolynomialSolver::add_polynomial(const string &polynomial_first, const string &polynomial_second) {
+    vector<mpz_class> first_vector = PolynomialSolver::parse_polynomial(polynomial_first, this->gf);
+    vector<mpz_class> second_vector = PolynomialSolver::parse_polynomial(polynomial_second,this->gf);
+    vector<mpz_class> polSum = this->sum_vector_pols(first_vector, second_vector);
+    vector<mpz_class> result = this->module.size() ==1? polSum:this->del_vector_pols(polSum,this->module);
     return PolynomialSolver::vector_to_str(result);
 }
 
-std::vector<mpz_class > PolynomialSolver::calculate_deliter(const std::vector<mpz_class>& result,
-                                                           const std::vector<mpz_class>& antiDelVector,
+vector<mpz_class > PolynomialSolver::calculate_deliter(const vector<mpz_class>& result,
+                                                           const vector<mpz_class>& antiDelVector,
                                                            const int i) {
     // Создаем копию antiDelVector
-    std::vector<mpz_class> deliter = antiDelVector;
+    vector<mpz_class> deliter = antiDelVector;
 
     // Вычисляем количество нулей для добавления
     int zeros_to_add = int(result.size()) - i - int(antiDelVector.size());
@@ -124,21 +124,21 @@ std::vector<mpz_class > PolynomialSolver::calculate_deliter(const std::vector<mp
     return deliter;
 }
 
-std::vector<mpz_class>
-PolynomialSolver::del_vector_pols(const std::vector<mpz_class>& polynomial_vector, const std::vector<mpz_class>& polynomial_del_vector){
+vector<mpz_class>
+PolynomialSolver::del_vector_pols(const vector<mpz_class>& polynomial_vector, const vector<mpz_class>& polynomial_del_vector){
     if(polynomial_vector.size() < polynomial_del_vector.size()) return polynomial_vector;
 
-    std::vector<mpz_class> result;
+    vector<mpz_class> result;
     std::copy(polynomial_vector.begin(), polynomial_vector.end(), std::back_inserter(result));
 
     while(true){
-        std::vector<mpz_class> anti_del_vector;
+        vector<mpz_class> anti_del_vector;
         for(const mpz_class& elem:polynomial_del_vector){
             anti_del_vector.emplace_back(gmp_add(this->gf, - elem,this->gf));
         }
         int i = 0;
         while(i< result.size() && result[i] == 0) i = i + 1;
-        std::vector<mpz_class> deliter = PolynomialSolver::calculate_deliter(result,anti_del_vector,i);
+        vector<mpz_class> deliter = PolynomialSolver::calculate_deliter(result,anti_del_vector,i);
         result = this->sum_vector_pols(result, deliter);
         if(!PolynomialSolver::greater_vector(result, polynomial_del_vector)) break;
     }
@@ -149,24 +149,19 @@ PolynomialSolver::del_vector_pols(const std::vector<mpz_class>& polynomial_vecto
     }
     if(i == result.size()) return {0};
     else{
-        std::vector<mpz_class> result_slice;
+        vector<mpz_class> result_slice;
         std::copy(result.begin() + i, result.end(), std::back_inserter(result_slice));
         return result_slice;
     }
 };
-bool PolynomialSolver::greater_vector(std::vector<mpz_class> vector_first, std::vector<mpz_class> vector_second){
-    if(vector_first.size() == vector_second.size()){
-        for(int i=0;i<vector_first.size();i++){
-            if(vector_first[i]>vector_second[i]) return true;
-            else if(vector_first[i]<vector_second[i]) return false;
-        }
-    }
+bool PolynomialSolver::greater_vector(vector<mpz_class> vector_first, vector<mpz_class> vector_second){
+    if(vector_first.size() == vector_second.size()) return true;
     else if(vector_first.size() < vector_second.size()) return false;
     return true;
 }
 
-std::vector<mpz_class> PolynomialSolver::mult_vector_pols(const std::vector<mpz_class>& polynomial_vector1,const std::vector<mpz_class>& polynomial_vector2){
-    std::vector<mpz_class>second,first;
+vector<mpz_class> PolynomialSolver::mult_vector_pols(const vector<mpz_class>& polynomial_vector1,const vector<mpz_class>& polynomial_vector2){
+    vector<mpz_class>second,first;
     if(polynomial_vector1.size() < polynomial_vector2.size()){
         second = polynomial_vector1;
         first = polynomial_vector2;
@@ -175,24 +170,121 @@ std::vector<mpz_class> PolynomialSolver::mult_vector_pols(const std::vector<mpz_
         first = polynomial_vector1;
         second = polynomial_vector2;
     }
-    std::vector<mpz_class> result;
+    vector<mpz_class> result;
     for(const auto & i : first){
-        //std::cout<<i<<" "<<result.size()<<std::endl;
         result.emplace_back(0);
-        std::vector<mpz_class> secondMult;
+        vector<mpz_class> secondMult;
         std::transform(second.begin(), second.end(), std::back_inserter(secondMult),
                        [first,&i](const mpz_class& x) { return x * i; });
-        //std::cout<<123<<std::endl;
         result = this->sum_vector_pols(result,secondMult);
     }
     return result;
 }
 
-std::string PolynomialSolver::mult_polynomial(const std::string& polynomial_first,const std::string& polynomial_second) {
-    std::vector<mpz_class> first_vector = this->parse_polynomial(polynomial_first);
-    std::vector<mpz_class> second_vector = this->parse_polynomial(polynomial_second);
+string PolynomialSolver::mult_polynomial(const string& polynomial_first,const string& polynomial_second) {
+    vector<mpz_class> first_vector = PolynomialSolver::parse_polynomial(polynomial_first, this->gf);
+    vector<mpz_class> second_vector = PolynomialSolver::parse_polynomial(polynomial_second, this->gf);
 
-    std::vector<mpz_class> pol_mult_vector = this->mult_vector_pols(first_vector, second_vector);
-    std::vector<mpz_class> result = this->del_vector_pols(pol_mult_vector, this->module);
-    return this->vector_to_str(result);
+    vector<mpz_class> pol_mult_vector = this->mult_vector_pols(first_vector, second_vector);
+    vector<mpz_class> result = this->module.size() ==1? pol_mult_vector:this->del_vector_pols(pol_mult_vector, this->module);
+    return PolynomialSolver::vector_to_str(result);
+}
+
+vector<mpz_class> PolynomialSolver::number_to_base(const mpz_class& num) {
+    vector<mpz_class> digits;
+    mpz_class n = num;
+    mpz_class zero(0);
+    if (n == zero) {
+        digits.push_back(zero);
+        return digits;
+    }
+    mpz_class remainder;
+    while (n != zero) {
+        mpz_tdiv_qr(n.get_mpz_t(), remainder.get_mpz_t(), n.get_mpz_t(), this->gf.get_mpz_t());
+        digits.push_back(remainder);
+    }
+    // Цифры в обратном порядке, перевернём
+    std::reverse(digits.begin(), digits.end());
+    return digits;
+}
+
+
+
+std::unordered_map<int,vector<vector<mpz_class>>> PolynomialSolver::create_not_priv_pol_list(int degree, mpz_class gf) {
+    PolynomialSolver pol_solver = PolynomialSolver(gf.get_str());
+
+    std::unordered_map<int,vector<vector<mpz_class>>> result;
+    for(int i = 1; i<degree;i++) {
+        mpz_class start= fast_degree(gf,i);
+        for(mpz_class j = start;j<start*gf;j++) {
+            vector<mpz_class> currentPol = pol_solver.number_to_base(j);
+            bool prim = true;
+            for(int k = 1; k<i/2+1;k++) {
+                for(const vector<mpz_class>& pol:result.at(k))
+                {
+                    vector<mpz_class> del_result = pol_solver.del_vector_pols(currentPol, pol);
+                    if(del_result[0] == 0) {
+                        prim = false;
+                        break;
+                    }
+                }
+                if(!prim) break;
+            }
+            if(prim) {
+                vector<vector<mpz_class>> pol_list = result[i];
+                pol_list.emplace_back(currentPol);
+                result[i] = pol_list;
+            }
+        }
+    }
+    return result;
+}
+
+bool PolynomialSolver::check_if_priv_pol(const vector<mpz_class>& pol_vector, const mpz_class &gf) {
+    int vector_degree = pol_vector.size() - 1;
+    PolynomialSolver pol_solver = PolynomialSolver(gf.get_str());
+
+
+    std::unordered_map<int,vector<vector<mpz_class>>> not_priv_pol_vectors = PolynomialSolver::create_not_priv_pol_list(vector_degree/2+1,gf);
+    bool prim = true;
+    for(int k = 1; k<vector_degree/2+1;k++) {
+        for(const vector<mpz_class>& pol:not_priv_pol_vectors[k]) {
+            if(pol_solver.del_vector_pols(pol_vector, pol)[0] == 0){
+                prim = false;
+                break;   
+            }
+        }
+        if(!prim) break;
+    }
+    return prim;
+}
+bool PolynomialSolver::prove_priv_polynomial(const string& pol,const string &gf){
+    vector<mpz_class> pol_vector = PolynomialSolver::parse_polynomial(pol,mpz_class(gf));
+    return PolynomialSolver::check_if_priv_pol(pol_vector,mpz_class(gf));
+}
+
+bool PolynomialSolver::check_if_prime_pol(const string& pol, const string& gf) {
+
+    mpz_class gf_mpz = mpz_class(gf);
+
+    vector<mpz_class> pol_vector = PolynomialSolver::parse_polynomial(pol,gf_mpz);
+    if(pol_vector.size()==2) return true;
+    if(!PolynomialSolver::check_if_priv_pol(pol_vector,gf_mpz)) return false;
+
+    int pol_degree = pol_vector.size() - 1;
+    vector<mpz_class> sq = {1, 0};
+    vector<mpz_class> current_gf_elem = {1,0};
+
+    set<vector<mpz_class>> already_was;
+    PolynomialSolver prim_solver = PolynomialSolver(gf);
+    int i = 1;
+    while(i <= fast_degree(gf_mpz,pol_degree)-1){
+        current_gf_elem = prim_solver.mult_vector_pols(sq, current_gf_elem);
+        current_gf_elem = prim_solver.del_vector_pols(current_gf_elem, pol_vector);
+        i = i + 1;
+        if(current_gf_elem.size() == 1 && current_gf_elem[0] == 1 || already_was.contains(current_gf_elem)) break;
+        already_was.insert(current_gf_elem);
+    }
+    if(i == fast_degree(gf_mpz,pol_degree)-1) return true;
+    return false;
 }

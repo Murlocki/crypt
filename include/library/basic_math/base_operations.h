@@ -5,8 +5,8 @@
 #include<vector>
 #include <set>
 
-mpz_class fast_degree(const mpz_class &number,const mpz_class &degree,const mpz_class &module);
-std::string fast_degree(const std::string& number,const std::string& degree,const std::string& module);
+mpz_class fast_degree(const mpz_class &number,const mpz_class &degree,const mpz_class &module = 1);
+std::string fast_degree(const std::string& number,const std::string& degree,const std::string& module ="1");
 
 
 mpz_class euler(const mpz_class &number);

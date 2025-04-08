@@ -4,10 +4,10 @@
 #include "library/basic_math/gmp_utils.h"
 #include "library/polynoms/PolynomialSolver.h"
 int main() {
-    auto a = PolynomialSolver("3","x^4");
-//    for(auto x: a.parse_polynomial("x")){
-//        std::cout<<x<<" ";
-//    }
-    std::cout<<a.mult_polynomial("2x^3+1","2x^3+2");
+    auto a = PolynomialSolver("2","x^2+x+1");
+    cout<<a.add_polynomial("x^2+1","1")<<endl;
+    PolynomialSolver::create_not_priv_pol_list(4,2);
+    cout<<PolynomialSolver::prove_priv_polynomial("x^2+x+1","2")<<endl;
+    cout<<PolynomialSolver::check_if_prime_pol("x^4+x^3+x^2+x+1","2")<<endl;
     return 0;
 }

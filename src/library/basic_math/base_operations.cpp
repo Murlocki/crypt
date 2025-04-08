@@ -10,7 +10,7 @@
 using namespace std;
 
 // Function for fast degree alg
-mpz_class fast_degree(const mpz_class &number, const mpz_class &degree, const mpz_class &module = 1) {
+mpz_class fast_degree(const mpz_class &number, const mpz_class &degree, const mpz_class &module) {
     if (degree < 0) throw std::invalid_argument("Degree cannot be lesser than 1");
     else if (degree == 0) return 1;
     // Get degree in binary
@@ -28,7 +28,7 @@ mpz_class fast_degree(const mpz_class &number, const mpz_class &degree, const mp
 }
 
 // Function for call fast degree alg from python
-std::string fast_degree(const std::string &number, const std::string &degree, const std::string &module = "1") {
+std::string fast_degree(const std::string &number, const std::string &degree, const std::string &module) {
     mpz_class number_int = mpz_class(number);
     mpz_class degree_int = mpz_class(degree);
     mpz_class module_int = mpz_class(module);
