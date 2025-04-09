@@ -21,5 +21,8 @@ int main() {
         cout<<degree<<" "<<pol<<endl;
     }
     cout<<generate_mersenne_prime(5);
+    cout<<fermat_test(22);
+    cout<<trial_division_test(23)<<endl;
+    cout<<miller_rabin_test(23)<<endl;
     return 0;
 }
