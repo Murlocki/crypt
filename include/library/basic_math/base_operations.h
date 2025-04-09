@@ -54,4 +54,6 @@ std::pair<std::vector<std::string>,std::vector<std::string>> find_quadratic_resi
 std::unordered_map<std::string,std::vector<std::string>> create_circle_classes(const std::string & degree,const std::string & multiplyer);
 std::unordered_map<std::string,std::vector<mpz_class>> create_circle_classes(const mpz_class& degree,const mpz_class& multiplyer);
 
+std::unordered_map<std::string, std::string> return_polynomoms_for_cycle_classes(const mpz_class& degree,const mpz_class& multiplyer);
+std::unordered_map<std::string, std::string> return_polynomoms_for_cycle_classes(const std::string & degree,const std::string & multiplyer);
 #endif //CRYPTO_BASE_OPERATIONS_H

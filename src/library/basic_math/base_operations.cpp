@@ -603,7 +603,7 @@ std::unordered_map<string,std::vector<mpz_class>> create_circle_classes(const mp
     std::set<mpz_class> seen = {0};
     std::unordered_map<string,std::vector<mpz_class>> circle_classes;
     circle_classes["0"]={};
-    for(mpz_class i = 1; i< fast_degree(multiplyer,degree)-1;i++){
+    for(mpz_class i = 1; i< fast_degree(multiplyer,degree) - 1;i++){
         mpz_class current_degree = i;
         if(seen.contains(current_degree)) continue;
         std::set<mpz_class> current_cycle = {};
@@ -628,5 +628,28 @@ std::unordered_map<string,std::vector<string>> create_circle_classes(const strin
         result[key] = mpz_to_strings(vals);
     }
 
+    return result;
+}
+
+std::unordered_map<string, string> return_polynomoms_for_cycle_classes(const mpz_class& degree,const mpz_class& multiplyer) {
+    std::unordered_map<string, vector<mpz_class>> cycles = create_circle_classes(degree, multiplyer);
+    std::unordered_map<string, string> result;
+    mpz_class root = find_prime_roots(fast_degree(multiplyer,degree))[0];
+    result["0"] = "M(g)=0";
+    for (const auto &[start, cycle]: cycles) {
+        if (start == "0") continue;
+        string pol = std::format("M{:}(g)=", start);
+        for (const auto& element: cycles[start]) {
+            mpz_class current_el = element;
+            pol += std::format("(g+{:})", current_el.get_str());
+        }
+        result[start] = pol;
+    }
+    return result;
+}
+std::unordered_map<string, string> return_polynomoms_for_cycle_classes(const string & degree,const string & multiplyer) {
+    mpz_class degree_int = mpz_class(degree);
+    mpz_class multuplyer_int = mpz_class(multiplyer);
+    std::unordered_map<string, string> result = return_polynomoms_for_cycle_classes(degree_int,multuplyer_int);
     return result;
 }
