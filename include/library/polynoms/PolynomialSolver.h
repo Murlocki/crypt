@@ -29,6 +29,12 @@ public:
     static bool prove_priv_polynomial(const string& pol,const string& gf);
 
     static bool check_if_prime_pol(const string& pol, const string& gf);
+
+    vector<vector<mpz_class>> create_galue_elems();
+
+    bool check_if_prim_elem(const string &elem);
+
+    std::unordered_map<string, string> return_polynomoms_for_cycle_classes();
 private:
     [[nodiscard]] vector<mpz_class> sum_vector_pols(const vector<mpz_class> &polynomial_first_vector,
                                            const vector<mpz_class> &polynomial_second_vector) const;
@@ -52,6 +58,7 @@ private:
 
     static bool check_if_priv_pol(const vector<mpz_class>& pol_vector, const mpz_class &gf);
 
+    bool check_if_prim_elem(vector<mpz_class> elem);
 };
 
 #endif //CRYPTO_POLYNOMIALSOLVER_H

@@ -4,6 +4,7 @@
 #include"gmpxx.h"
 #include<vector>
 #include <set>
+#include <unordered_map>
 
 mpz_class fast_degree(const mpz_class &number,const mpz_class &degree,const mpz_class &module = 1);
 std::string fast_degree(const std::string& number,const std::string& degree,const std::string& module ="1");
@@ -49,5 +50,8 @@ std::vector<std::string> solve_quadratic_congruence(const std::string &a, const 
 
 std::pair<std::vector<mpz_class>,std::vector<mpz_class>> find_quadratic_residues_nonresidues(const mpz_class &module);
 std::pair<std::vector<std::string>,std::vector<std::string>> find_quadratic_residues_nonresidues(const std::string &module);
+
+std::unordered_map<std::string,std::vector<std::string>> create_circle_classes(const std::string & degree,const std::string & multiplyer);
+std::unordered_map<std::string,std::vector<mpz_class>> create_circle_classes(const mpz_class& degree,const mpz_class& multiplyer);
 
 #endif //CRYPTO_BASE_OPERATIONS_H

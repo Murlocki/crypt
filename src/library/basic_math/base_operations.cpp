@@ -597,3 +597,36 @@ std::vector<std::string> solve_quadratic_congruence(const std::string &a, const 
     mpz_class m_int = mpz_class(m);
     return mpz_to_strings(solve_quadratic_congruence(a_int,m_int));
 }
+
+
+std::unordered_map<string,std::vector<mpz_class>> create_circle_classes(const mpz_class& degree,const mpz_class& multiplyer) {
+    std::set<mpz_class> seen = {0};
+    std::unordered_map<string,std::vector<mpz_class>> circle_classes;
+    circle_classes["0"]={};
+    for(mpz_class i = 1; i< fast_degree(multiplyer,degree)-1;i++){
+        mpz_class current_degree = i;
+        if(seen.contains(current_degree)) continue;
+        std::set<mpz_class> current_cycle = {};
+        while(!current_cycle.contains(current_degree)){
+            current_cycle.insert(current_degree);
+            seen.insert(current_degree);
+            current_degree = gmp_module(current_degree * multiplyer,fast_degree(multiplyer,degree) - 1);
+        }
+        std::vector<mpz_class> cycle_vector(current_cycle.begin(), current_cycle.end());
+        circle_classes[i.get_str()] = cycle_vector;
+    }
+    return circle_classes;
+}
+
+std::unordered_map<string,std::vector<string>> create_circle_classes(const string & degree,const string & multiplyer) {
+    mpz_class degree_int = mpz_class(degree);
+    mpz_class multiplyer_int = mpz_class(multiplyer);
+
+    std::unordered_map<string,std::vector<mpz_class>> cycles = create_circle_classes(degree_int,multiplyer_int);
+    std::unordered_map<string,std::vector<string>> result;
+    for (const auto& [key, vals] : cycles) {
+        result[key] = mpz_to_strings(vals);
+    }
+
+    return result;
+}
