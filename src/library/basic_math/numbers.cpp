@@ -4,6 +4,8 @@
 
 #include "library/basic_math/numbers.h"
 #include "library/basic_math/base_operations.h"
+#include "library/extra_functions/convertions.h"
+#include "library/basic_math/gmp_utils.h"
 #include<gmpxx.h>
 #include<vector>
 #include<string>
@@ -112,4 +114,68 @@ bool miller_rabin_test(const mpz_class& n, const mpz_class &k) {
         if (composite) return false;
     }
     return true;
+}
+
+
+vector<mpz_class> fermat_factorization(const mpz_class& n) {
+    if(gmp_module(n,2)==0)throw std::invalid_argument("N must be odd");
+    mpz_class a, b, b2;
+    mpz_sqrt(a.get_mpz_t(), n.get_mpz_t());
+    a += 1;
+    b2 = a * a - n;
+
+    while (mpz_perfect_square_p(b2.get_mpz_t()) == 0) {
+        a += 1;
+        b2 = a * a - n;
+    }
+
+    mpz_sqrt(b.get_mpz_t(), b2.get_mpz_t());
+    return {(a - b), (a + b)};
+}
+vector<string> fermat_factorization(const string& n){
+    return mpz_to_strings(fermat_factorization(mpz_class(n)));
+}
+
+
+vector<mpz_class> pollard_p_minus_1(const mpz_class& n, const mpz_class& B) {
+    mpz_class a = 2;
+    mpz_class d;
+
+    for (mpz_class p = 2; p <= B; mpz_nextprime(p.get_mpz_t(), p.get_mpz_t())) {
+        mpz_pow_ui(a.get_mpz_t(), a.get_mpz_t(), mpz_get_ui(p.get_mpz_t()));
+        a %= n;
+    }
+
+    mpz_sub_ui(d.get_mpz_t(), a.get_mpz_t(), 1);
+    mpz_gcd(d.get_mpz_t(), d.get_mpz_t(), n.get_mpz_t());
+
+    if (d > 1 && d < n) return {d,n/d};
+    return {1,n};
+}
+
+vector<string> pollard_p_minus_1(const string& n, const string& B){
+    return mpz_to_strings(pollard_p_minus_1(mpz_class(n),mpz_class(B)));
+}
+
+
+vector<mpz_class> pollard_rho(const mpz_class& n) {
+    if (n % 2 == 0) return {2,n/2};
+
+    mpz_class x = 2, y = 2, d = 1;
+    mpz_class c = 1;
+
+    auto f = [&](const mpz_class& val) { return gmp_add(val * val,c, n); };
+
+    while (d == 1) {
+        x = f(x);
+        y = f(f(y));
+        mpz_sub(d.get_mpz_t(), x.get_mpz_t(), y.get_mpz_t());
+        mpz_abs(d.get_mpz_t(), d.get_mpz_t());
+        mpz_gcd(d.get_mpz_t(), d.get_mpz_t(), n.get_mpz_t());
+    }
+
+    return {d,n/d};
+}
+vector<string> pollard_rho(const string& n){
+    return mpz_to_strings(pollard_rho(mpz_class(n)));
 }

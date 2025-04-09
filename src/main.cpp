@@ -24,5 +24,12 @@ int main() {
     cout<<fermat_test(22);
     cout<<trial_division_test(23)<<endl;
     cout<<miller_rabin_test(23)<<endl;
+
+    for(auto x: fermat_factorization(45))cout<<x<<" ";
+    cout<<endl;
+    for(auto x: pollard_p_minus_1(45,4))cout<<x<<" ";
+    cout<<endl;
+    for(auto x: pollard_rho(45))cout<<x<<" ";
+    cout<<endl;
     return 0;
 }

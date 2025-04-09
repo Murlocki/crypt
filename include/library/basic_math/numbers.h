@@ -19,4 +19,10 @@ bool trial_division_test(const mpz_class& n);
 bool trial_division_test(const string& n);
 bool miller_rabin_test(const string& n,  const string& k = "5");
 bool miller_rabin_test(const mpz_class& n, const mpz_class &k = 5);
+vector<string> fermat_factorization(const string& n);
+vector<mpz_class> fermat_factorization(const mpz_class& n);
+vector<string> pollard_p_minus_1(const string& n, const string& B);
+vector<mpz_class> pollard_p_minus_1(const mpz_class& n, const mpz_class& B);
+vector<mpz_class> pollard_rho(const mpz_class& n);
+vector<string> pollard_rho(const string& n);
 #endif //CRYPTO_NUMBERS_H
