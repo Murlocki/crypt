@@ -19,6 +19,7 @@ add_library(gmp_utils STATIC
         src/library/extra_functions/convertions.cpp
         src/library/polynoms/PolynomialSolver.cpp
         src/library/basic_math/numbers.cpp
+        src/library/codes/DES.cpp
 
 )
 
