@@ -3,6 +3,8 @@
 #include "library/extra_functions/convertions.h"
 #include "library/basic_math/gmp_utils.h"
 #include "library/polynoms/PolynomialSolver.h"
+#include "library/basic_math/numbers.h"
+
 int main() {
     auto a = PolynomialSolver("2","x^3+x+1");
     cout<<a.add_polynomial("x^2+1","1")<<endl;
@@ -18,5 +20,6 @@ int main() {
     for(const auto& [degree,pol]: return_polynomoms_for_cycle_classes("3","2")){
         cout<<degree<<" "<<pol<<endl;
     }
+    cout<<generate_mersenne_prime(5);
     return 0;
 }

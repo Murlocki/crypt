@@ -18,6 +18,7 @@ add_library(gmp_utils STATIC
         src/library/basic_math/base_operations.cpp
         src/library/extra_functions/convertions.cpp
         src/library/polynoms/PolynomialSolver.cpp
+        src/library/basic_math/numbers.cpp
 
 )
 
