@@ -47,7 +47,7 @@ target_link_libraries(main_test PRIVATE gmp_utils)
 option(BUILD_PYTHON_MODULE "Build Python module" ON)
 
 if(BUILD_PYTHON_MODULE)
-    get_filename_component(Python_SITEARCH ${Python_EXECUTABLE}/../../Lib/site-packages ABSOLUTE)
+    get_filename_component(Python_SITEARCH ${Python_EXECUTABLE}/../../Lib ABSOLUTE)
     message(STATUS "Python site-packages: ${Python_SITEARCH}")
 
     # Настройка pybind11 (добавлено здесь, чтобы было доступно для всех целей)
@@ -65,13 +65,14 @@ if(BUILD_PYTHON_MODULE)
             ${Python_INCLUDE_DIRS}
     )
 
+    # Находим правильный путь для установки
     execute_process(
             COMMAND ${Python_EXECUTABLE} -c "import site; print(site.getsitepackages()[0])"
             OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
             OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 
-    # Установка модуля
+    # Устанавливаем модуль
     install(TARGETS crypto_learn
             LIBRARY DESTINATION ${PYTHON_SITE_PACKAGES}
             RUNTIME DESTINATION ${PYTHON_SITE_PACKAGES}

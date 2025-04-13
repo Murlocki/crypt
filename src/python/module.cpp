@@ -125,64 +125,349 @@ std::vector<py::int_> py_pollard_rho(const py::int_&n){
 }
 
 PYBIND11_MODULE(crypto_learn, m) {
-    auto factorize_ops = m.def_submodule("Factorize", "Факторизация");
-    factorize_ops.def("fermat_factorization", &py_fermat_factorization, py::arg("number"));
+    m.doc() = R"doc(
+        Модуль crypto_learn - набор криптографических алгоритмов и математических операций
+        для работы с простыми числами, факторизации, шифрования и базовых арифметических операций.
+    )doc";
+
+    // Модуль факторизации
+    auto factorize_ops = m.def_submodule("Factorize", R"doc(
+        Алгоритмы факторизации чисел.
+
+        Содержит реализации:
+        - Метод факторизации Ферма
+        - Алгоритм Полларда P-1
+        - Алгоритм Полларда Rho
+    )doc");
+
+    factorize_ops.def("fermat_factorization", &py_fermat_factorization,
+                      py::arg("number"),
+                      R"doc(
+            Факторизация числа методом Ферма.
+
+            Parameters:
+                number (int): Число для факторизации (должно быть нечётным составным)
+
+            Returns:
+                tuple: (p, q) такие что p*q = number
+
+            Raises:
+                ValueError: Если входное число чётное или простое
+        )doc");
+
     factorize_ops.def("pollard_p_minus_1_factorization", &py_pollard_p_minus_1_factorization,
                       py::arg("number"),
-                      py::arg("B")=py::int_(5));
+                      py::arg("B")=py::int_(5),
+                      R"doc(
+            Факторизация числа алгоритмом Полларда P-1.
+
+            Parameters:
+                number (int): Число для факторизации
+                B (int, optional): Граница гладкости (по умолчанию 5)
+
+            Returns:
+                int: Нетривиальный делитель числа или 1 если не найден
+        )doc");
+
     factorize_ops.def("pollard_rho_factorization", &py_pollard_rho,
-                      py::arg("number"));
+                      py::arg("number"),
+                      R"doc(
+            Факторизация числа алгоритмом Полларда Rho.
 
-    auto prime_tests_ops = m.def_submodule("PrimeTests", "Проверки на простоту");
-    prime_tests_ops.def("fermat_test", &py_fermat_test, py::arg("number"),py::arg("iter_count")=py::int_(5));
+            Parameters:
+                number (int): Число для факторизации
+
+            Returns:
+                int: Нетривиальный делитель числа
+        )doc");
+
+    // Модуль проверки на простоту
+    auto prime_tests_ops = m.def_submodule("PrimeTests", R"doc(
+        Тесты проверки чисел на простоту.
+
+        Содержит:
+        - Тест Ферма
+        - Метод пробных делений
+        - Тест Миллера-Рабина
+    )doc");
+
+    prime_tests_ops.def("fermat_test", &py_fermat_test,
+                        py::arg("number"),
+                        py::arg("iter_count")=py::int_(5),
+                        R"doc(
+            Тест Ферма на простоту числа.
+
+            Parameters:
+                number (int): Проверяемое число
+                iter_count (int, optional): Количество итераций (по умолчанию 5)
+
+            Returns:
+                bool: Вероятно простое (True) или составное (False)
+        )doc");
+
     prime_tests_ops.def("trial_division_test", &py_trial_division_test,
-                      py::arg("number"));
+                        py::arg("number"),
+                        R"doc(
+            Проверка простоты методом пробных делений.
+
+            Parameters:
+                number (int): Проверяемое число
+
+            Returns:
+                bool: Простое (True) или составное (False)
+        )doc");
+
     prime_tests_ops.def("miller_rabin_test", &py_miller_rabin_test,
-                      py::arg("number"),py::arg("k")=py::int_(5));
+                        py::arg("number"),
+                        py::arg("k")=py::int_(5),
+                        R"doc(
+            Тест Миллера-Рабина на простоту числа.
 
-    auto prime_generates = m.def_submodule("PrimeGenerates", "Генерация именных простых чисел");
-    prime_generates.def("fermat_prime", &py_generate_ferma_prime, py::arg("number"));
-    prime_generates.def("mersenne_prime", &py_generate_mernsenne_prime,py::arg("number"));
+            Parameters:
+                number (int): Проверяемое число
+                k (int, optional): Количество раундов (по умолчанию 5)
 
-    auto encodes = m.def_submodule("Encodes", "Алгоритмы шифрования");
-    py::class_<DES>(encodes, "DES")
-            .def(py::init<string>(),py::arg("key")="1010101010111011000010010001100000100111001101101100110011011101")  // Конструктор
-            .def("encrypt", &DES::encrypt, py::arg("string_to_encode"))
-            .def("decrypt", &DES::decrypt, py::arg("string_to_decode"));
+            Returns:
+                bool: Вероятно простое (True) или составное (False)
+        )doc");
 
-    auto base_operations = m.def_submodule("BaseOperations", "Базовые операции");
+    // Модуль генерации простых чисел
+    auto prime_generates = m.def_submodule("PrimeGenerates", R"doc(
+        Генерация специальных простых чисел.
+
+        Содержит:
+        - Простые числа Ферма
+        - Простые числа Мерсенна
+    )doc");
+
+    prime_generates.def("fermat_prime", &py_generate_ferma_prime,
+                        py::arg("n"),
+                        R"doc(
+            Генерация простого числа Ферма вида 2^(2^n) + 1.
+
+            Parameters:
+                n (int): Параметр генерации (0 <= n <= 4)
+
+            Returns:
+                int: Простое число Ферма
+
+            Raises:
+                ValueError: Если n не в допустимом диапазоне
+        )doc");
+
+    prime_generates.def("mersenne_prime", &py_generate_mernsenne_prime,
+                        py::arg("p"),
+                        R"doc(
+            Генерация простого числа Мерсенна вида 2^p - 1.
+
+            Parameters:
+                p (int): Показатель степени (должен быть простым)
+
+            Returns:
+                int: Простое число Мерсенна или 0 если не простое
+        )doc");
+
+    // Модуль шифрования
+    auto encodes = m.def_submodule("Encodes", R"doc(
+        Алгоритмы шифрования.
+
+        Содержит реализацию:
+        - Алгоритма DES (Data Encryption Standard)
+    )doc");
+
+    py::class_<DES>(encodes, "DES", R"doc(
+        Класс для шифрования/дешифрования по алгоритму DES.
+
+        Args:
+            key (str, optional): 64-битный ключ в двоичном виде (по умолчанию стандартный ключ)
+    )doc")
+            .def(py::init<string>(),
+                 py::arg("key")="1010101010111011000010010001100000100111001101101100110011011101")
+            .def("encrypt", &DES::encrypt,
+                 py::arg("string_to_encode"),
+                 R"doc(
+                Шифрование строки.
+
+                Parameters:
+                    string_to_encode (str): Строка для шифрования
+
+                Returns:
+                    str: Зашифрованная строка
+            )doc")
+            .def("decrypt", &DES::decrypt,
+                 py::arg("string_to_decode"),
+                 R"doc(
+                Дешифрование строки.
+
+                Parameters:
+                    string_to_decode (str): Строка для дешифрования
+
+                Returns:
+                    str: Расшифрованная строка
+            )doc");
+
+    // Базовые операции
+    auto base_operations = m.def_submodule("BaseOperations", R"doc(
+        Базовые математические операции для криптографии.
+
+        Содержит:
+        - Быстрое возведение в степень
+        - Функция Эйлера
+        - Расширенный алгоритм Евклида
+        - Обратный элемент
+        - Решение линейных и квадратичных сравнений
+        - Китайская теорема об остатках
+        - Решение диофантовых уравнений
+        - Поиск первообразных корней
+    )doc");
+
     base_operations.def("fast_degree", &py_fast_degree,
                         py::arg("number"),
                         py::arg("degree"),
-                        py::arg("module") = py::int_(1));
+                        py::arg("module") = py::int_(1),
+                        R"doc(
+            Быстрое возведение в степень по модулю.
+
+            Parameters:
+                number (int): Основание
+                degree (int): Показатель степени
+                module (int, optional): Модуль (по умолчанию 1)
+
+            Returns:
+                int: (number^degree) mod module
+        )doc");
+
     base_operations.def("euler_slow", &py_euler_slow,
-                        py::arg("number"));
+                        py::arg("number"),
+                        R"doc(
+            Вычисление функции Эйлера (медленный алгоритм).
+
+            Parameters:
+                number (int): Входное число
+
+            Returns:
+                int: Значение функции Эйлера φ(n)
+        )doc");
+
     base_operations.def("euler_def", &py_euler_def,
-                        py::arg("number"));
+                        py::arg("number"),
+                        R"doc(
+            Вычисление функции Эйлера через факторизацию.
+
+            Parameters:
+                number (int): Входное число
+
+            Returns:
+                int: Значение функции Эйлера φ(n)
+        )doc");
+
     base_operations.def("extended_gcd", &py_extended_gcd,
                         py::arg("first"),
-                        py::arg("second"));
+                        py::arg("second"),
+                        R"doc(
+            Расширенный алгоритм Евклида.
+
+            Parameters:
+                first (int): Первое число
+                second (int): Второе число
+
+            Returns:
+                tuple: (НОД, x, y) такие что a*x + b*y = НОД(a,b)
+        )doc");
+
     base_operations.def("inverse_element", &py_inverse_element,
                         py::arg("number"),
-                        py::arg("module")=py::int_(1));
+                        py::arg("module")=py::int_(1),
+                        R"doc(
+            Нахождение обратного элемента по модулю.
+
+            Parameters:
+                number (int): Число
+                module (int, optional): Модуль (по умолчанию 1)
+
+            Returns:
+                int: Обратный элемент или 0 если не существует
+        )doc");
+
     base_operations.def("solve_linear_congruence", &py_linear_congruence,
                         py::arg("a"),
                         py::arg("b"),
-                        py::arg("module"));
+                        py::arg("module"),
+                        R"doc(
+            Решение линейного сравнения a*x ≡ b (mod m).
+
+            Parameters:
+                a (int): Коэффициент
+                b (int): Свободный член
+                module (int): Модуль
+
+            Returns:
+                list: Список решений или пустой список если нет решений
+        )doc");
+
     base_operations.def("solve_chinese_lefts", &py_chinese_lefts,
-                        py::arg("coefs"));
+                        py::arg("coefs"),
+                        R"doc(
+            Решение системы сравнений (Китайская теорема об остатках).
+
+            Parameters:
+                coefs (list): Список кортежей [(a1, m1), (a2, m2), ...]
+
+            Returns:
+                int: Решение системы или 0 если нет решения
+        )doc");
+
     base_operations.def("solve_diofant_equasion", &py_diofant_equasion,
                         py::arg("a"),
                         py::arg("b"),
-                        py::arg("d")
-                        );
+                        py::arg("d"),
+                        R"doc(
+            Решение диофантова уравнения a*x + b*y = d.
+
+            Parameters:
+                a (int): Коэффициент при x
+                b (int): Коэффициент при y
+                d (int): Свободный член
+
+            Returns:
+                tuple: (x0, y0) - частное решение или (0,0) если нет решения
+        )doc");
+
     base_operations.def("find_prime_roots", &py_prime_roots,
-                        py::arg("module")
-    );
+                        py::arg("module"),
+                        R"doc(
+            Поиск первообразных корней по модулю.
+
+            Parameters:
+                module (int): Модуль (простое число)
+
+            Returns:
+                list: Список первообразных корней
+        )doc");
+
     base_operations.def("solve_quadratic_congruence", &py_quadratic_congruence,
-                        py::arg("a"),py::arg("module")
-    );
+                        py::arg("a"),
+                        py::arg("module"),
+                        R"doc(
+            Решение квадратичного сравнения x^2 ≡ a (mod p).
+
+            Parameters:
+                a (int): Число
+                module (int): Простой модуль
+
+            Returns:
+                list: Список решений или пустой список если нет решений
+        )doc");
+
     base_operations.def("find_quadratic_residues_and_non_residues", &py_quadratic_res_and_non_res,
-                        py::arg("module")
-    );
+                        py::arg("module"),
+                        R"doc(
+            Поиск квадратичных вычетов и невычетов по модулю.
+
+            Parameters:
+                module (int): Модуль
+
+            Returns:
+                tuple: (residues, non_residues) - списки вычетов и невычетов
+        )doc");
 }
