@@ -36,3 +36,6 @@ py::int_ string_to_pyint(const std::string &s){
 std::string pyint_to_string(const py::int_ &py_int){
     return py::cast<std::string>(py::str(py_int));;
 }
+py::bool_ string_to_pybool(const std::string &b){
+    return py::bool_(py::str(b));;
+}
